@@ -9,4 +9,4 @@ spec:
   calicoNetwork:
     # Note: The ipPools section cannot be modified post-install.
     ipPools:
-    - cidr: 10.244.0.0/16
+    - cidr: "${POD_SUBNET}"
