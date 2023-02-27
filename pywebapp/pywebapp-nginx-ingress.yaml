@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pywebapp-nginx-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: pywebapp.local
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: pywebapp-service
+              port:
+                number: 8080
+

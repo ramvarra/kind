@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pywebapp-service
+spec:
+  selector:
+    app: pywebapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      
