@@ -22,6 +22,7 @@ create_kind() {
 
     [ "$(kubectl config current-context)" = "kind-${CLUSTER_NAME}" ] || err_exit "kubectl current context is not ${CLUSTER_NAME}-kind"
 }
+
 install_calico() {
     [ "$(kubectl config current-context)" = "kind-${CLUSTER_NAME}" ] || err_exit "kubectl current context is not ${CLUSTER_NAME}-kind"
     CALICO_CONFIG=${CLUSTER_NAME}-calico-custom-resources.yaml
@@ -33,18 +34,22 @@ install_calico() {
 }
 
 install_ingress() {
-    helm repo update
+    helm repo list | grep '^ingress-nginx ' > /dev/null || {
+       helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx || err_exit "Failed to add repo ingress-nginx"
+    }
+
+    helm repo update || err_exit "help repo update failed"
     helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
         --namespace ingress-nginx \
         --create-namespace \
         --set controller.hostNetwork=true \
-        --set controller.kind=DaemonSet
+        --set controller.kind=DaemonSet || err_exit "helm install ingres-nginx failed"
 
 
 }
 CLUSTER_NAME=${1:?Usage: $0 <cluster_name>}
-#create_kind || err_exit "kind failed"
-#install_calico || err_exit "Failed to install calico"
+create_kind || err_exit "kind failed"
+install_calico || err_exit "Failed to install calico"
 install_ingress || err_exit "Failed to install ingress"
 
 watch kubectl get pods -A
